@@ -25,7 +25,12 @@ class Course{
     int getCourseId(){
         return courseId;
     }
-
+    int getLecturerId(){
+        return lecturerId;
+    }
+    void setId(int id){
+        courseId = id;
+    }
     bool operator== (Course const &other){
         if(courseId == other.courseId){
             return true;
@@ -101,6 +106,10 @@ class User{
     }
     void setPassword(string password){
         this->password = password;
+    }
+    // use this function only when you are reading 
+    void setId(int id){
+        this->id = id;
     }
 };
 
@@ -822,95 +831,93 @@ void signUpScreen(){
 
 }
 //It will be implemented at the end
-// void Exit(){
-//     //saving students
-//     fstream fstudents;
-//     fstudents.open("students.txt");
-//     string temp = "";
-//     temp = to_string(students.size());
-//     fstudents << temp << endl;
-//     for(int i = 0; i < students.size(); i++){
-//         fstudents << students[i].get_userName() << endl;
-//         fstudents << students[i].get_password() << endl;
-//         fstudents << students[i].get_fullName() << endl;
-//         fstudents << students[i].get_email() << endl;
-//         vector<Course> c = students[i].get_courses();
-//         temp  = to_string(c.size());
-//         fstudents << temp << endl;
-//         for(int j = 0; j < c.size(); j++){
-//             fstudents << c[j].getCourseName() << endl;
-//             fstudents << c[j].getLecturerName() << endl;
-//         }
-//     }
-//     fstudents.close();
-//     students.clear();
-//     //saving courses
-//     fstream fcourses;
-//     fcourses.open("courses.txt");
-//     temp = to_string(courses.size());
-//     fcourses << temp << endl;
-//     for(int i = 0; i < courses.size(); i++){
-//         fcourses << courses[i].getCourseName() << endl;
-//         fcourses << courses[i].getLecturerName() << endl;
-//     }
-//     fcourses.close();
-//     courses.clear();
+void Exit(){
+    //saving students
+    fstream fstudents;
+    fstudents.open("students.txt");
+    string temp = "";
+    temp = to_string(students.size());
+    fstudents << temp << endl;
+    for(int i = 0; i < students.size(); i++){
+        fstudents << students[i].get_id() << endl;
+        fstudents << students[i].get_userName() << endl;
+        fstudents << students[i].get_password() << endl;
+        fstudents << students[i].get_fullName() << endl;
+        fstudents << students[i].get_email() << endl;
+        vector<int> c = students[i].get_courses();
+        temp  = to_string(c.size());
+        fstudents << temp << endl;
+        for(int j = 0; j < c.size(); j++){
+            fstudents << c[j] << endl;
+        }
+    }
+    fstudents.close();
+    students.clear();
+    //saving courses
+    fstream fcourses;
+    fcourses.open("courses.txt");
+    temp = to_string(courses.size());
+    fcourses << temp << endl;
+    for(int i = 0; i < courses.size(); i++){
+        fcourses << courses[i].getCourseId() << endl;
+        fcourses << courses[i].getLecturerId() << endl;
+        fcourses << courses[i].getCourseName() << endl;
+        fcourses << courses[i].getLecturerName() << endl;
+    }
+    fcourses.close();
+    courses.clear();
 
-//     // saving lecturers
+    // saving lecturers
 
-//     fstream flecturers;
-//     flecturers.open("lecturers.txt");
-//     temp = "";
-//     temp = to_string(lecturers.size());
-//     flecturers << temp << endl;
-//     for(int i = 0; i < lecturers.size(); i++){
-//         flecturers << lecturers[i].get_userName() << endl;
-//         flecturers << lecturers[i].get_password() << endl;
-//         flecturers << lecturers[i].get_fullName() << endl;
-//         flecturers << lecturers[i].get_email() << endl;
-//         vector<Course> c = lecturers[i].get_courses();
-//         temp  = to_string(c.size());
-//         flecturers << temp << endl;
-//         for(int j = 0; j < c.size(); j++){
-//             flecturers << c[j].getCourseName() << endl;
-//             flecturers << c[j].getLecturerName() << endl;
-//         }
-//     }
-//     flecturers.close();
-//     lecturers.clear();
+    fstream flecturers;
+    flecturers.open("lecturers.txt");
+    temp = "";
+    temp = to_string(lecturers.size());
+    flecturers << temp << endl;
+    for(int i = 0; i < lecturers.size(); i++){
+        flecturers << lecturers[i].get_id() << endl;
+        flecturers << lecturers[i].get_userName() << endl;
+        flecturers << lecturers[i].get_password() << endl;
+        flecturers << lecturers[i].get_fullName() << endl;
+        flecturers << lecturers[i].get_email() << endl;
+        vector<int> c = lecturers[i].get_courses();
+        temp  = to_string(c.size());
+        flecturers << temp << endl;
+        for(int j = 0; j < c.size(); j++){
+            flecturers << c[j] << endl;
+        }
+    }
+    flecturers.close();
+    lecturers.clear();
 
-//     // saving studentsInCourse
-//     fstream sc;
-//     sc.open("studentsincourse.txt");
-//     temp = to_string(studentsInCourse.size());
-//     sc << temp << endl;
+    // saving studentsInCourse
+    fstream sc;
+    sc.open("studentsincourse.txt");
+    temp = to_string(studentsInCourse.size());
+    sc << temp << endl;
 
-//     for(int i = 0; i < studentsInCourse.size(); i++){
-//         Course t = studentsInCourse[i].first;
-//         sc << t.getCourseName() << endl;
-//         sc << t.getLecturerName() << endl;
-//         vector<Student> c = studentsInCourse[i].second;
-//         temp = to_string(c.size());
-//         sc << temp << endl;
-//         for(int j = 0; j < c.size(); j++){
-//             sc << c[j].get_userName() << endl;
-//             sc << c[j].get_password() << endl;
-//             sc << c[j].get_fullName() << endl;
-//             sc << c[j].get_email() << endl;
-//             vector<Course> v = c[j].get_courses();
-//             temp  = to_string(v.size());
-//             sc << temp << endl;
-//             for(int k = 0; k < v.size(); k++){
-//                 sc << v[k].getCourseName() << endl;
-//                 sc << v[k].getLecturerName() << endl;
-//             }
-//         }
-//     }
-//     sc.close();
-//     studentsInCourse.clear();
+    for(int i = 0; i < studentsInCourse.size(); i++){
+        sc << studentsInCourse[i].first << endl;
+        temp = to_string(studentsInCourse[i].second.size());
+        sc << temp << endl;
+        for(int j = 0; j < studentsInCourse[i].second.size(); j++){
+            sc << studentsInCourse[i].second[j] << endl;
+        }
+    }
+    sc.close();
+    studentsInCourse.clear();
 
+    fstream counters;
+    counters.open("counters.txt");
 
-// }
+    temp = to_string(idCounter);
+    counters << temp << endl;
+    temp = to_string(idCourseCounter);
+    counters << temp << endl;
+
+    counters.close();
+
+}
 void welcomeScreen(){
     cout << "\t\t\t=====================================================================\n";
     cout << "\t\t\t=====================================================================\n";
@@ -937,120 +944,118 @@ void welcomeScreen(){
             welcomeScreen();
             return;
         }else if(option == '3'){
-            //Exit();
+            Exit();
             return;
         }
     }while(true);
 
 }
 // It will be implemented at the end
-// void preprocessing(){
-//     // students
-//     //saving students
-//     fstream fstudents;
-//     fstudents.open("students.txt");
-//     string temp = "";
-//     getline(fstudents , temp);
-//     int size = stoi(temp);
-//     for(int i = 0; i < size; i++){
-//         string userName , password , fullName , email;
-//         string courseName , lecturerName;
-//         getline(fstudents , userName);
-//         getline(fstudents , password);
-//         getline(fstudents , fullName);
-//         getline(fstudents , email);
-//         getline(fstudents , temp);
-//         int numberCourses = stoi(temp);
-//         Student student(userName , password , email , fullName);
-//         for(int j = 0; j < numberCourses; j++){
-//             getline(fstudents , courseName);
-//             getline(fstudents , lecturerName);
-//             Course c(courseName , lecturerName);
-//             student.addCourse(c);
-//         }
-//         students.push_back(student);
+void preprocessing(){
+    // students
+    //saving students
+    fstream fstudents;
+    fstudents.open("students.txt");
+    string temp = "";
+    getline(fstudents , temp);
+    int size = stoi(temp);
+    for(int i = 0; i < size; i++){
+        string userName , password , fullName , email;
+        
+        string id;
+        getline(fstudents , id);
 
-//     }
-//     fstudents.close();
+        getline(fstudents , userName);
+        getline(fstudents , password);
+        getline(fstudents , fullName);
+        getline(fstudents , email);
+        getline(fstudents , temp);
+        int numberCourses = stoi(temp);
+        Student student(userName , password , email , fullName);
+        for(int j = 0; j < numberCourses; j++){
+            string courseId;
+            getline(fstudents , courseId);
+            student.addCourse(stoi(courseId));
+        }
+        student.setId(stoi(id));
+        students.push_back(student);
 
-//     fstream flecturers;
-//     flecturers.open("lecturers.txt");
-//     temp = "";
-//     getline(flecturers , temp);
-//     size = stoi(temp);
-//     for(int i = 0; i < size; i++){
-//         string userName , password , fullName , email;
-//         string courseName , lecturerName;
-//         getline(flecturers , userName);
-//         getline(flecturers , password);
-//         getline(flecturers , fullName);
-//         getline(flecturers , email);
-//         getline(flecturers , temp);
-//         int numberCourses = stoi(temp);
-//         Lecturer lecturer(userName , password , email , fullName);
-//         for(int j = 0; j < numberCourses; j++){
-//             getline(flecturers , courseName);
-//             getline(flecturers , lecturerName);
-//             Course c(courseName , lecturerName);
-//             lecturer.addCourse(c);
-//         }
-//         lecturers.push_back(lecturer);
+    }
+    fstudents.close();
 
-//     }
-//     flecturers.close();
+    fstream flecturers;
+    flecturers.open("lecturers.txt");
+    temp = "";
+    getline(flecturers , temp);
+    size = stoi(temp);
+    for(int i = 0; i < size; i++){
+        string userName , password , fullName , email;
+        
+        string id;
+        getline(flecturers , id);
 
-//     fstream fcourses;
-//     fcourses.open("courses.txt");
-//     getline(fcourses , temp);
-//     size = stoi(temp);
-//     for(int i = 0; i < size; i++){
-//         string courseName , lecturerName;
-//         getline(fcourses, courseName);
-//         getline(fcourses ,lecturerName);
-//         Course course(courseName, lecturerName);
-//         courses.push_back(course);
-//     }
-//     fcourses.close();
+        getline(flecturers , userName);
+        getline(flecturers , password);
+        getline(flecturers , fullName);
+        getline(flecturers , email);
+        getline(flecturers , temp);
+        int numberCourses = stoi(temp);
+        Lecturer lecturer(userName , password , email , fullName);
+        for(int j = 0; j < numberCourses; j++){
+            string courseId;
+            getline(flecturers , courseId);
+            lecturer.addCourse(stoi(courseId));
+        }
+        lecturer.setId(stoi(id));
+        lecturers.push_back(lecturer);
 
-//     fstream sc;
-//     sc.open("studentsincourse.txt");
-//     getline(sc , temp);
-//     size = stoi(temp);
-//     for(int i = 0; i < size; i++){
-//         string courseName, lecturerName;
-//         getline(sc,  courseName);
-//         getline(sc , lecturerName);
-//         Course course (courseName, lecturerName);
-//         string temp2 = "";
-//         getline(sc , temp2);
-//         int size2 = stoi(temp2);
-//         vector<Student> st;
-//         for(int j = 0; j < size2; j++){
-//             string userName , password , fullName , email;
-//             string courseName , lecturerName;
-//             getline(sc , userName);
-//             getline(sc , password);
-//             getline(sc , fullName);
-//             getline(sc , email);
-//             getline(sc , temp);
-//             int numberCourses = stoi(temp);
-//             Student student(userName , password , email , fullName);
-//             for(int j = 0; j < numberCourses; j++){
-//                 getline(sc , courseName);
-//                 getline(sc , lecturerName);
-//                 Course c(courseName , lecturerName);
-//                 student.addCourse(c);
-//             }
-//             st.push_back(student);
-//         }
-//         studentsInCourse.push_back({course , st});
-//     }
-//     sc.close();
+    }
+    flecturers.close();
 
+    fstream fcourses;
+    fcourses.open("courses.txt");
+    getline(fcourses , temp);
+    size = stoi(temp);
+    for(int i = 0; i < size; i++){
+        string courseName , lecturerName , courseId , lecturerId;
+        getline(fcourses , courseId);
+        getline(fcourses , lecturerId);
+        getline(fcourses, courseName);
+        getline(fcourses ,lecturerName);
+        Course course(courseName, lecturerName , stoi(lecturerId));
+        course.setId(stoi(courseId));
+        courses.push_back(course);
+    }
+    fcourses.close();
 
-// }
+    fstream sc;
+    sc.open("studentsincourse.txt");
+    getline(sc , temp);
+    size = stoi(temp);
+    for(int i = 0; i < size; i++){
+        string course;
+        getline(sc , course);
+        vector<int> v;
+        getline(sc , temp);
+        int size2 = stoi(temp);
+        for(int j = 0; j < size2; j++){
+            getline(sc , temp);
+            v.push_back(stoi(temp));
+        }
+        studentsInCourse.push_back({stoi(course) , v});
+    }
+    sc.close();
+
+    fstream counters;
+    counters.open("counters.txt");
+    getline(counters , temp);
+    idCounter = stoi(temp);
+    getline(counters , temp);
+    idCourseCounter = stoi(temp);
+    counters.close();
+}
 int main(){
-    //preprocessing();
+    preprocessing();
     welcomeScreen();
     return 0;
 }
