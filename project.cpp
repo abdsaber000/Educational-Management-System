@@ -1,14 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+int idCounter  = 0;
+int idCourseCounter = 0;
 class Course{
     private:
     string courseName;
     string lecturerName;
-    int numberOfEnrolledStudents;
+    int courseId;
+    int lecturerId;
     public:
-    Course(string courseName , string lecturerName) : courseName(courseName) , lecturerName(lecturerName){
-        numberOfEnrolledStudents = 0;
+    Course(string courseName , string lecturerName , int lectureId) : courseName(courseName) , lecturerName(lecturerName){
+        idCourseCounter++;
+        courseId = idCourseCounter;
+        this->lecturerId = lecturerId;
         
     }
     string getCourseName(){
@@ -17,22 +22,16 @@ class Course{
     string getLecturerName(){
         return lecturerName;
     }
+    int getCourseId(){
+        return courseId;
+    }
 
     bool operator== (Course const &other){
-        if(courseName == other.courseName && lecturerName == other.lecturerName
-        && numberOfEnrolledStudents == other.numberOfEnrolledStudents){
+        if(courseId == other.courseId){
             return true;
         }else{
             return false;
         }
-    }
-    bool operator>(Course const &other){
-        if(courseName > other.courseName) return true;
-        else return false;
-    }
-    bool operator<(Course const &other){
-        if(courseName < other.courseName) return true;
-        else return false;
     }
 
 };
@@ -42,13 +41,16 @@ class User{
     string password;
     string email;
     string fullName;
-    vector<Course> courses; // the courses in which the student is enrolled
+    int id;
+    vector<int> courses; // the courses in which the student is enrolled
     public:
     User(string userName , string password,string email , string fullName){
         this->userName = userName;
         this->password = password;
         this->email = email;
         this->fullName = fullName;
+        idCounter++;
+        id = idCounter;
     }
     ~User(){
         courses.clear();
@@ -65,24 +67,27 @@ class User{
     string get_email(){
         return email;
     }
-    vector<Course> get_courses(){
+    int get_id(){
+        return id;
+    }
+    vector<int> get_courses(){
         return courses;
     }
     bool isValidCourseIndex(int index){
         return index >= 1 && index <= courses.size();
     }
-    Course getCourseByIndex(int index){
-        return courses[index - 1];
+    int getCourseByIndex(int index){
+        return courses[index - 1]; // return the id of the course
     }
-    void addCourse(Course &course){
-        courses.push_back(course);
+    void addCourse(int id){
+        courses.push_back(id);
     }
     void deleteCourseByIndex(int index){
         courses.erase(courses.begin() + index - 1);
     }
-    void deleteCourse(Course &course){
+    void deleteCourse(int id){
         for(int i = 0; i < courses.size(); i++){
-            if(courses[i] == course){
+            if(courses[i] == id){
                 courses.erase(courses.begin() + i);
                 break;
             }
@@ -110,15 +115,19 @@ class Student : public User{
     int getNumberOfEnrolledCourses(){
         return courses.size();
     }
-    void viewCourses(){
+    void viewCourses(vector<Course> &other){
         for(int i = 0; i < courses.size(); i++){
-            cout << "\t\t\t" << i + 1 << "- " << courses[i].getCourseName() << " by "
-            << courses[i].getLecturerName() << "\n";
+            for(int j = 0; j < other.size(); j++){
+                if(other[j].getCourseId() == courses[i]){
+                    cout << "\t\t\t" << i + 1 << "- " << other[j].getCourseName() << " by "
+                    << other[j].getLecturerName() << "\n";
+                }
+            }
         }
     }
-    bool isEnrolled(Course _course){
-        for(Course course : courses){
-            if(_course == course) return true;
+    bool isEnrolled(int id){
+        for(int courseId : courses){
+            if(courseId == id) return true;
         }
         return false;
     }
@@ -128,20 +137,9 @@ class Student : public User{
     
     
     bool operator== (Student const &other){
-        if(userName == other.userName && password == other.password 
-        && email == other.email && fullName == other.fullName){
+        if(id == other.id){
             return true;
-        }else{
-            return false;
-        }
-    }
-    bool operator>(Student const &other){
-        if(fullName > other.fullName) return true;
-        else return false;
-    }
-    bool operator<(Student const &other){
-        if(fullName < other.fullName) return true;
-        else return false;
+        }else return false;
     }
 };
 class Lecturer : public User{
@@ -151,9 +149,13 @@ class Lecturer : public User{
     : User(userName, password , email , fullName){
         
     }
-    void viewCourses(){
+    void viewCourses(vector<Course> &other){
         for(int i = 0; i < courses.size(); i++){
-            cout << "\t\t\t" << i + 1 << "- " << courses[i].getCourseName() << "\n";
+            for(int j = 0; j < other.size(); j++){
+                if(other[j].getCourseId() == courses[i]){
+                    cout << "\t\t\t" << i + 1 << "- " << other[j].getCourseName() << "\n";
+                }
+            }
         }
     }
     
@@ -161,7 +163,7 @@ class Lecturer : public User{
 vector<Student> students; // list of all students
 vector<Lecturer> lecturers; // list of all lecturers
 vector<Course> courses; // list of all courses
-vector<pair<Course, vector<Student>>> studentsInCourse; // list of students in specific course
+vector<pair<int, vector<int>>> studentsInCourse; // list of students in specific course
 
 // check if there a user has this username
 bool isValidStudent(string username){
@@ -220,45 +222,49 @@ bool isValidCourseIndex(int index){
     return index >= 1 && index <= courses.size();
 }
 
-bool isValidStudentIndex(Course &course , int index){
+bool isValidStudentIndex(int courseId , int index){
     for(int i = 0; i < studentsInCourse.size(); i++){
-        if(studentsInCourse[i].first == course){
+        if(studentsInCourse[i].first == courseId){
             return index >= 1 && index <= studentsInCourse[i].second.size();
         }
     }
     return false;
 }
 // we have to check first if the index is valid
-Student getStudentInCourse(Course &course , int index){
+//this function will return the id of the student
+int getStudentInCourse(int courseId , int index){
     for(int i = 0; i < studentsInCourse.size(); i++){
-        if(studentsInCourse[i].first == course){
+        if(studentsInCourse[i].first == courseId){
             return studentsInCourse[i].second[index - 1];
         }
     }
-    return students[0]; // this won't happen because we check first
+    return students[0].get_id(); // this won't happen because we check first
 }
 // it should be checked first that the student is not enrolled in the course
 void addCourse(Student &student, Course &course){
-    student.addCourse(course);
-    for(int i = 0; i < courses.size(); i++){
-        if(studentsInCourse[i].first == course){
-            studentsInCourse[i].second.push_back(student);
+    int studentId = student.get_id();
+    int courseId = course.getCourseId();
+    student.addCourse(courseId);
+    for(int i = 0; i < studentsInCourse.size(); i++){
+        if(studentsInCourse[i].first == courseId){
+            studentsInCourse[i].second.push_back(student.get_id());
             break;
         }
     }
 }
 
 void addCourse(Lecturer &lecturer, Course &course){
-    lecturer.addCourse(course);
+    lecturer.addCourse(course.getCourseId());
     courses.push_back(course);
-    studentsInCourse.push_back({course , vector<Student>()});
+    studentsInCourse.push_back({course.getCourseId() , vector<int>()});
 }
-void deleteCourse(Student &student , Course &course){
-    student.deleteCourse(course);
-    for(int i = 0; i < courses.size(); i++){
-        if(studentsInCourse[i].first == course){
+void deleteCourse(Student &student, Course &course){
+    int courseId = course.getCourseId();
+    student.deleteCourse(courseId);
+    for(int i = 0; i < studentsInCourse.size(); i++){
+        if(studentsInCourse[i].first == courseId){
             for(int j = 0; j < studentsInCourse[i].second.size(); j++){
-                if(studentsInCourse[i].second[j] == student){
+                if(studentsInCourse[i].second[j] == student.get_id()){
                     studentsInCourse[i].second.erase(studentsInCourse[i].second.begin() + j);
                     break;
                 }
@@ -269,9 +275,9 @@ void deleteCourse(Student &student , Course &course){
 }
 
 void deleteCourse(Lecturer &lecturer , Course &course){
-    lecturer.deleteCourse(course);
+    lecturer.deleteCourse(course.getCourseId());
     for(int i = 0; i < studentsInCourse.size(); i++){
-        if(studentsInCourse[i].first == course){
+        if(studentsInCourse[i].first == course.getCourseId()){
             studentsInCourse.erase(studentsInCourse.begin() + i);
             break;
         }
@@ -286,7 +292,7 @@ void deleteCourse(Lecturer &lecturer , Course &course){
 void viewMyCoursesScreen(Student &student){
     cout << "\t\t\t=====================================================================\n\n";
     cout << "\t\t\t\t" << "Here is your courses list: \n"; 
-    student.viewCourses();
+    student.viewCourses(courses);
     cout << "\n\n";
     cout << "\t\t\t" << "1- Delete a course.\n";
     cout << "\t\t\t" << "2- Go back.\n";
@@ -300,8 +306,13 @@ void viewMyCoursesScreen(Student &student){
                 int numberOfCourse;
                 cin >> numberOfCourse;
                 if(student.isValidCourseIndex(numberOfCourse)){
-                    Course _course = student.getCourseByIndex(numberOfCourse);
-                    deleteCourse(student , _course);
+                    int courseId = student.getCourseByIndex(numberOfCourse);
+                    for(int i = 0; i < courses.size(); i++){
+                        if(courses[i].getCourseId() == courseId){
+
+                            deleteCourse(student , courses[i]);
+                        }
+                    } 
                     viewMyCoursesScreen(student);
                     return;
                 }
@@ -318,10 +329,15 @@ void viewMyCoursesScreen(Student &student){
 void printStudentsInCourse(Course &course){
     cout << "\t\t\t" << "Student Name\t\tusername\n";
     for(int i = 0; i < studentsInCourse.size(); i++){
-        if(studentsInCourse[i].first == course){
+        if(studentsInCourse[i].first == course.getCourseId()){
             for(int j = 0; j < studentsInCourse[i].second.size(); j++){
-                cout << "\t\t\t" << j + 1 << "- " << studentsInCourse[i].second[j].get_fullName() << "\t\t"
-                << studentsInCourse[i].second[j].get_userName() << "\n";
+                for(int k = 0; k < students.size(); k++){
+                    if(students[k].get_id() == studentsInCourse[i].second[j]){
+                        cout << "\t\t\t" << j + 1 << "- " << students[k].get_fullName() << "\t\t"
+                        << students[k].get_userName() << "\n";
+                        break;
+                    }
+                }
             }
 
             break;
@@ -343,9 +359,13 @@ void viewStudentsInCourseScreen(Course &course){
             cout << "Enter the student index: ";
             int index;
             cin >> index;
-            if(isValidStudentIndex(course , index)){
-                Student _student  = getStudentInCourse(course , index);
-                deleteCourse(_student , course);
+            if(isValidStudentIndex(course.getCourseId() , index)){
+                int studentId  = getStudentInCourse(course.getCourseId() , index);
+                for(int i = 0; i < students.size(); i++){
+                    if(students[i].get_id() == studentId){
+                        deleteCourse(students[i] , course);
+                    }
+                }
                 cout << "\t\t\t" << "The student was removed successfully.\n";
             }else{
                 cout << "\t\t\t" << "Sorry, The index is incorrect.\n";
@@ -360,7 +380,7 @@ void viewStudentsInCourseScreen(Course &course){
 void viewMyCoursesScreen(Lecturer &lecturer){
     cout << "\t\t\t=====================================================================\n\n";
     cout << "\t\t\t\t" << "Here is your courses list: \n"; 
-    lecturer.viewCourses();
+    lecturer.viewCourses(courses);
     cout << "\n";
     cout << "\t\t\t" << "1- View students in certain course.\n";
     cout << "\t\t\t" << "2- Remove a course.\n";
@@ -385,8 +405,15 @@ void viewMyCoursesScreen(Lecturer &lecturer){
             int index;
             cin >> index;
             if(isValidCourseIndex(index)){
-                Course _course = lecturer.getCourseByIndex(index);
-                deleteCourse(lecturer , _course);
+                int courseId = lecturer.getCourseByIndex(index);
+                for(int i = 0; i < courses.size(); i++){
+                    if(courses[i].getCourseId() == courseId){
+
+                        deleteCourse(lecturer , courses[i]);
+                        break;
+                    }
+
+                }
             }else{
                 cout << "\t\t\t" << "Sorry, the course index is not correct!\n";
             }
@@ -418,7 +445,7 @@ void viewCoursesScreen(Student &student){
             int courseNumber;
             cin >> courseNumber;
             if(isValidCourseIndex(courseNumber)){
-                if(!student.isEnrolled(courses[courseNumber - 1])){
+                if(!student.isEnrolled(courses[courseNumber - 1].getCourseId())){
                     addCourse(student, courses[courseNumber - 1]);
                 }
                 else{
@@ -437,7 +464,7 @@ void viewCoursesScreen(Student &student){
 //TODO
 void viewCoursesScreen(Lecturer &lecturer){
     cout << "\t\t\t=====================================================================\n\n";
-    lecturer.viewCourses();
+    lecturer.viewCourses(courses);
     cout << "\n";
     
     cout << "\t\t\t" << "Press any key to go back.\n";
@@ -608,7 +635,7 @@ void CreateCourseScreen(Lecturer &lecturer){
     cout << "\t\t\t" << "Enter the course name: ";
     string name;
     cin >> name;
-    Course course (name , lecturer.get_fullName());
+    Course course (name , lecturer.get_fullName(), lecturer.get_id());
     addCourse(lecturer , course);
 }
 //TODO
@@ -662,7 +689,7 @@ void loginScreen(){
         cin >> password;
         cout << "\n";
         
-        for(Student student : students){
+        for(Student &student : students){
             if(student.get_userName() == user && student.get_password() == password){
                 DashboardScreen(student);
                 check = false;
@@ -671,7 +698,7 @@ void loginScreen(){
         }
         
         if(!check) continue;
-        for(Lecturer lecturer : lecturers){
+        for(Lecturer &lecturer : lecturers){
             if(lecturer.get_userName() == user && lecturer.get_password() == password){
                 DashboardScreen(lecturer);
                 check = false;
@@ -795,95 +822,95 @@ void signUpScreen(){
 
 }
 //It will be implemented at the end
-void Exit(){
-    //saving students
-    fstream fstudents;
-    fstudents.open("students.txt");
-    string temp = "";
-    temp = to_string(students.size());
-    fstudents << temp << endl;
-    for(int i = 0; i < students.size(); i++){
-        fstudents << students[i].get_userName() << endl;
-        fstudents << students[i].get_password() << endl;
-        fstudents << students[i].get_fullName() << endl;
-        fstudents << students[i].get_email() << endl;
-        vector<Course> c = students[i].get_courses();
-        temp  = to_string(c.size());
-        fstudents << temp << endl;
-        for(int j = 0; j < c.size(); j++){
-            fstudents << c[j].getCourseName() << endl;
-            fstudents << c[j].getLecturerName() << endl;
-        }
-    }
-    fstudents.close();
-    students.clear();
-    //saving courses
-    fstream fcourses;
-    fcourses.open("courses.txt");
-    temp = to_string(courses.size());
-    fcourses << temp << endl;
-    for(int i = 0; i < courses.size(); i++){
-        fcourses << courses[i].getCourseName() << endl;
-        fcourses << courses[i].getLecturerName() << endl;
-    }
-    fcourses.close();
-    courses.clear();
+// void Exit(){
+//     //saving students
+//     fstream fstudents;
+//     fstudents.open("students.txt");
+//     string temp = "";
+//     temp = to_string(students.size());
+//     fstudents << temp << endl;
+//     for(int i = 0; i < students.size(); i++){
+//         fstudents << students[i].get_userName() << endl;
+//         fstudents << students[i].get_password() << endl;
+//         fstudents << students[i].get_fullName() << endl;
+//         fstudents << students[i].get_email() << endl;
+//         vector<Course> c = students[i].get_courses();
+//         temp  = to_string(c.size());
+//         fstudents << temp << endl;
+//         for(int j = 0; j < c.size(); j++){
+//             fstudents << c[j].getCourseName() << endl;
+//             fstudents << c[j].getLecturerName() << endl;
+//         }
+//     }
+//     fstudents.close();
+//     students.clear();
+//     //saving courses
+//     fstream fcourses;
+//     fcourses.open("courses.txt");
+//     temp = to_string(courses.size());
+//     fcourses << temp << endl;
+//     for(int i = 0; i < courses.size(); i++){
+//         fcourses << courses[i].getCourseName() << endl;
+//         fcourses << courses[i].getLecturerName() << endl;
+//     }
+//     fcourses.close();
+//     courses.clear();
 
-    // saving lecturers
+//     // saving lecturers
 
-    fstream flecturers;
-    flecturers.open("lecturers.txt");
-    temp = "";
-    temp = to_string(lecturers.size());
-    flecturers << temp << endl;
-    for(int i = 0; i < lecturers.size(); i++){
-        flecturers << lecturers[i].get_userName() << endl;
-        flecturers << lecturers[i].get_password() << endl;
-        flecturers << lecturers[i].get_fullName() << endl;
-        flecturers << lecturers[i].get_email() << endl;
-        vector<Course> c = lecturers[i].get_courses();
-        temp  = to_string(c.size());
-        flecturers << temp << endl;
-        for(int j = 0; j < c.size(); j++){
-            flecturers << c[j].getCourseName() << endl;
-            flecturers << c[j].getLecturerName() << endl;
-        }
-    }
-    flecturers.close();
-    lecturers.clear();
+//     fstream flecturers;
+//     flecturers.open("lecturers.txt");
+//     temp = "";
+//     temp = to_string(lecturers.size());
+//     flecturers << temp << endl;
+//     for(int i = 0; i < lecturers.size(); i++){
+//         flecturers << lecturers[i].get_userName() << endl;
+//         flecturers << lecturers[i].get_password() << endl;
+//         flecturers << lecturers[i].get_fullName() << endl;
+//         flecturers << lecturers[i].get_email() << endl;
+//         vector<Course> c = lecturers[i].get_courses();
+//         temp  = to_string(c.size());
+//         flecturers << temp << endl;
+//         for(int j = 0; j < c.size(); j++){
+//             flecturers << c[j].getCourseName() << endl;
+//             flecturers << c[j].getLecturerName() << endl;
+//         }
+//     }
+//     flecturers.close();
+//     lecturers.clear();
 
-    // saving studentsInCourse
-    fstream sc;
-    sc.open("studentsincourse.txt");
-    temp = to_string(studentsInCourse.size());
-    sc << temp << endl;
+//     // saving studentsInCourse
+//     fstream sc;
+//     sc.open("studentsincourse.txt");
+//     temp = to_string(studentsInCourse.size());
+//     sc << temp << endl;
 
-    for(int i = 0; i < studentsInCourse.size(); i++){
-        Course t = studentsInCourse[i].first;
-        sc << t.getCourseName() << endl;
-        sc << t.getLecturerName() << endl;
-        vector<Student> c = studentsInCourse[i].second;
-        temp = to_string(c.size());
-        sc << temp << endl;
-        for(int j = 0; j < c.size(); j++){
-            sc << c[j].get_userName() << endl;
-            sc << c[j].get_password() << endl;
-            sc << c[j].get_fullName() << endl;
-            sc << c[j].get_email() << endl;
-            vector<Course> v = c[j].get_courses();
-            temp  = to_string(v.size());
-            sc << temp << endl;
-            for(int k = 0; k < v.size(); k++){
-                sc << v[k].getCourseName() << endl;
-                sc << v[k].getLecturerName() << endl;
-            }
-        }
-    }
-    sc.close();
-    studentsInCourse.clear();
+//     for(int i = 0; i < studentsInCourse.size(); i++){
+//         Course t = studentsInCourse[i].first;
+//         sc << t.getCourseName() << endl;
+//         sc << t.getLecturerName() << endl;
+//         vector<Student> c = studentsInCourse[i].second;
+//         temp = to_string(c.size());
+//         sc << temp << endl;
+//         for(int j = 0; j < c.size(); j++){
+//             sc << c[j].get_userName() << endl;
+//             sc << c[j].get_password() << endl;
+//             sc << c[j].get_fullName() << endl;
+//             sc << c[j].get_email() << endl;
+//             vector<Course> v = c[j].get_courses();
+//             temp  = to_string(v.size());
+//             sc << temp << endl;
+//             for(int k = 0; k < v.size(); k++){
+//                 sc << v[k].getCourseName() << endl;
+//                 sc << v[k].getLecturerName() << endl;
+//             }
+//         }
+//     }
+//     sc.close();
+//     studentsInCourse.clear();
 
 
-}
+// }
 void welcomeScreen(){
     cout << "\t\t\t=====================================================================\n";
     cout << "\t\t\t=====================================================================\n";
@@ -910,120 +937,120 @@ void welcomeScreen(){
             welcomeScreen();
             return;
         }else if(option == '3'){
-            Exit();
+            //Exit();
             return;
         }
     }while(true);
 
 }
 // It will be implemented at the end
-void preprocessing(){
-    // students
-    //saving students
-    fstream fstudents;
-    fstudents.open("students.txt");
-    string temp = "";
-    getline(fstudents , temp);
-    int size = stoi(temp);
-    for(int i = 0; i < size; i++){
-        string userName , password , fullName , email;
-        string courseName , lecturerName;
-        getline(fstudents , userName);
-        getline(fstudents , password);
-        getline(fstudents , fullName);
-        getline(fstudents , email);
-        getline(fstudents , temp);
-        int numberCourses = stoi(temp);
-        Student student(userName , password , email , fullName);
-        for(int j = 0; j < numberCourses; j++){
-            getline(fstudents , courseName);
-            getline(fstudents , lecturerName);
-            Course c(courseName , lecturerName);
-            student.addCourse(c);
-        }
-        students.push_back(student);
+// void preprocessing(){
+//     // students
+//     //saving students
+//     fstream fstudents;
+//     fstudents.open("students.txt");
+//     string temp = "";
+//     getline(fstudents , temp);
+//     int size = stoi(temp);
+//     for(int i = 0; i < size; i++){
+//         string userName , password , fullName , email;
+//         string courseName , lecturerName;
+//         getline(fstudents , userName);
+//         getline(fstudents , password);
+//         getline(fstudents , fullName);
+//         getline(fstudents , email);
+//         getline(fstudents , temp);
+//         int numberCourses = stoi(temp);
+//         Student student(userName , password , email , fullName);
+//         for(int j = 0; j < numberCourses; j++){
+//             getline(fstudents , courseName);
+//             getline(fstudents , lecturerName);
+//             Course c(courseName , lecturerName);
+//             student.addCourse(c);
+//         }
+//         students.push_back(student);
 
-    }
-    fstudents.close();
+//     }
+//     fstudents.close();
 
-    fstream flecturers;
-    flecturers.open("lecturers.txt");
-    temp = "";
-    getline(flecturers , temp);
-    size = stoi(temp);
-    for(int i = 0; i < size; i++){
-        string userName , password , fullName , email;
-        string courseName , lecturerName;
-        getline(flecturers , userName);
-        getline(flecturers , password);
-        getline(flecturers , fullName);
-        getline(flecturers , email);
-        getline(flecturers , temp);
-        int numberCourses = stoi(temp);
-        Lecturer lecturer(userName , password , email , fullName);
-        for(int j = 0; j < numberCourses; j++){
-            getline(flecturers , courseName);
-            getline(flecturers , lecturerName);
-            Course c(courseName , lecturerName);
-            lecturer.addCourse(c);
-        }
-        lecturers.push_back(lecturer);
+//     fstream flecturers;
+//     flecturers.open("lecturers.txt");
+//     temp = "";
+//     getline(flecturers , temp);
+//     size = stoi(temp);
+//     for(int i = 0; i < size; i++){
+//         string userName , password , fullName , email;
+//         string courseName , lecturerName;
+//         getline(flecturers , userName);
+//         getline(flecturers , password);
+//         getline(flecturers , fullName);
+//         getline(flecturers , email);
+//         getline(flecturers , temp);
+//         int numberCourses = stoi(temp);
+//         Lecturer lecturer(userName , password , email , fullName);
+//         for(int j = 0; j < numberCourses; j++){
+//             getline(flecturers , courseName);
+//             getline(flecturers , lecturerName);
+//             Course c(courseName , lecturerName);
+//             lecturer.addCourse(c);
+//         }
+//         lecturers.push_back(lecturer);
 
-    }
-    flecturers.close();
+//     }
+//     flecturers.close();
 
-    fstream fcourses;
-    fcourses.open("courses.txt");
-    getline(fcourses , temp);
-    size = stoi(temp);
-    for(int i = 0; i < size; i++){
-        string courseName , lecturerName;
-        getline(fcourses, courseName);
-        getline(fcourses ,lecturerName);
-        Course course(courseName, lecturerName);
-        courses.push_back(course);
-    }
-    fcourses.close();
+//     fstream fcourses;
+//     fcourses.open("courses.txt");
+//     getline(fcourses , temp);
+//     size = stoi(temp);
+//     for(int i = 0; i < size; i++){
+//         string courseName , lecturerName;
+//         getline(fcourses, courseName);
+//         getline(fcourses ,lecturerName);
+//         Course course(courseName, lecturerName);
+//         courses.push_back(course);
+//     }
+//     fcourses.close();
 
-    fstream sc;
-    sc.open("studentsincourse.txt");
-    getline(sc , temp);
-    size = stoi(temp);
-    for(int i = 0; i < size; i++){
-        string courseName, lecturerName;
-        getline(sc,  courseName);
-        getline(sc , lecturerName);
-        Course course (courseName, lecturerName);
-        string temp2 = "";
-        getline(sc , temp2);
-        int size2 = stoi(temp2);
-        vector<Student> st;
-        for(int j = 0; j < size2; j++){
-            string userName , password , fullName , email;
-            string courseName , lecturerName;
-            getline(sc , userName);
-            getline(sc , password);
-            getline(sc , fullName);
-            getline(sc , email);
-            getline(sc , temp);
-            int numberCourses = stoi(temp);
-            Student student(userName , password , email , fullName);
-            for(int j = 0; j < numberCourses; j++){
-                getline(sc , courseName);
-                getline(sc , lecturerName);
-                Course c(courseName , lecturerName);
-                student.addCourse(c);
-            }
-            st.push_back(student);
-        }
-        studentsInCourse.push_back({course , st});
-    }
-    sc.close();
+//     fstream sc;
+//     sc.open("studentsincourse.txt");
+//     getline(sc , temp);
+//     size = stoi(temp);
+//     for(int i = 0; i < size; i++){
+//         string courseName, lecturerName;
+//         getline(sc,  courseName);
+//         getline(sc , lecturerName);
+//         Course course (courseName, lecturerName);
+//         string temp2 = "";
+//         getline(sc , temp2);
+//         int size2 = stoi(temp2);
+//         vector<Student> st;
+//         for(int j = 0; j < size2; j++){
+//             string userName , password , fullName , email;
+//             string courseName , lecturerName;
+//             getline(sc , userName);
+//             getline(sc , password);
+//             getline(sc , fullName);
+//             getline(sc , email);
+//             getline(sc , temp);
+//             int numberCourses = stoi(temp);
+//             Student student(userName , password , email , fullName);
+//             for(int j = 0; j < numberCourses; j++){
+//                 getline(sc , courseName);
+//                 getline(sc , lecturerName);
+//                 Course c(courseName , lecturerName);
+//                 student.addCourse(c);
+//             }
+//             st.push_back(student);
+//         }
+//         studentsInCourse.push_back({course , st});
+//     }
+//     sc.close();
 
 
-}
+// }
 int main(){
-    preprocessing();
+    //preprocessing();
     welcomeScreen();
     return 0;
 }
