@@ -93,6 +93,8 @@ class User{
     void deleteCourse(int id){
         for(int i = 0; i < courses.size(); i++){
             if(courses[i] == id){
+                cout << "\t\t\tTEST\n";
+                cout << "\t\t\tid = " << id << "\n";
                 courses.erase(courses.begin() + i);
                 break;
             }
@@ -267,7 +269,7 @@ void addCourse(Lecturer &lecturer, Course &course){
     courses.push_back(course);
     studentsInCourse.push_back({course.getCourseId() , vector<int>()});
 }
-void deleteCourse(Student &student, Course &course){
+void deleteCourse(Student &student, Course course){
     int courseId = course.getCourseId();
     student.deleteCourse(courseId);
     for(int i = 0; i < studentsInCourse.size(); i++){
@@ -283,7 +285,7 @@ void deleteCourse(Student &student, Course &course){
     }
 }
 
-void deleteCourse(Lecturer &lecturer , Course &course){
+void deleteCourse(Lecturer &lecturer , Course course){
     lecturer.deleteCourse(course.getCourseId());
     for(int i = 0; i < studentsInCourse.size(); i++){
         if(studentsInCourse[i].first == course.getCourseId()){
@@ -296,6 +298,9 @@ void deleteCourse(Lecturer &lecturer , Course &course){
             courses.erase(courses.begin() + i);
             break;
         }
+    }
+    for(int i = 0; i < students.size(); i++){
+        students[i].deleteCourse(course.getCourseId());
     }
 }
 void viewMyCoursesScreen(Student &student){
@@ -323,6 +328,9 @@ void viewMyCoursesScreen(Student &student){
                         }
                     } 
                     viewMyCoursesScreen(student);
+                    return;
+                }else{
+                    cout << "Sorry, the course index is incorrect.\n";
                     return;
                 }
 
@@ -419,7 +427,8 @@ void viewMyCoursesScreen(Lecturer &lecturer){
                     if(courses[i].getCourseId() == courseId){
 
                         deleteCourse(lecturer , courses[i]);
-                        break;
+                        viewMyCoursesScreen(lecturer);
+                        return;
                     }
 
                 }
@@ -443,9 +452,9 @@ void viewCoursesScreen(Student &student){
             << courses[i].getLecturerName() << "\n";
     }
     
-    cout << "\t\t\t" << "1- Enroll in course.\n";
-    cout << "\t\t\t" << "2- Go back.\n";
     do{
+        cout << "\t\t\t" << "1- Enroll in course.\n";
+        cout << "\t\t\t" << "2- Go back.\n";
         cout << "\t\t\t" << "Your Choice: ";
         char option;
         cin >> option;
@@ -456,6 +465,7 @@ void viewCoursesScreen(Student &student){
             if(isValidCourseIndex(courseNumber)){
                 if(!student.isEnrolled(courses[courseNumber - 1].getCourseId())){
                     addCourse(student, courses[courseNumber - 1]);
+                    return;
                 }
                 else{
                     cout << "\t\t\t" << "Sorry you are enrolled in the course.\n";
@@ -463,6 +473,7 @@ void viewCoursesScreen(Student &student){
             }else{
                 cout << "\t\t\t" << "Sorry the course number is not valid.\n";
             }
+
         }else if(option == '2'){
             return;
         }
@@ -592,12 +603,15 @@ void settingsScreen(User * user){
         cin >> option;
         if(option == '1'){
             changeUsernameScreen(user);
+            settingsScreen(user);
             return;
         }else if(option == '2'){
             changeEmailScreen(user);
+            settingsScreen(user);
             return;
         }else if(option == '3'){
             changePasswordScreen(user);
+            settingsScreen(user);
             return;
         }else if(option == '4'){
             return;
@@ -1060,9 +1074,3 @@ int main(){
     return 0;
 }
 
-/*
-    two problems until now
-    1- student in studnetsInCourse vector are not the same as students in students vector
-    2- to solve this issue we have to make a parameter that totally identify every object
-    making an id is a good suggestion
-*/
