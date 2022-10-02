@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<regex>
 using namespace std;
 
 int idCounter  = 0;
@@ -93,8 +97,6 @@ class User{
     void deleteCourse(int id){
         for(int i = 0; i < courses.size(); i++){
             if(courses[i] == id){
-                cout << "\t\t\tTEST\n";
-                cout << "\t\t\tid = " << id << "\n";
                 courses.erase(courses.begin() + i);
                 break;
             }
@@ -214,6 +216,11 @@ int isValidPassword(string password){
     return (password.size() >= 8) && regex_match(password, pattern);
 }
 
+bool isValidNumber(string number){
+    if(number.size() > 9) return false;
+    const regex pattern("^[0-9]*$");
+    return regex_match(number , pattern);
+}
 bool isValidEmail(string email){
     const regex pattern("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
     return regex_match(email , pattern);
@@ -330,7 +337,7 @@ void viewMyCoursesScreen(Student &student){
                     viewMyCoursesScreen(student);
                     return;
                 }else{
-                    cout << "Sorry, the course index is incorrect.\n";
+                    cout << "\t\t\tSorry, the course index is incorrect.\n";
                     return;
                 }
 
@@ -373,7 +380,7 @@ void viewStudentsInCourseScreen(Course &course){
         char option;
         cin >> option;
         if(option == '1'){
-            cout << "Enter the student index: ";
+            cout << "\t\t\tEnter the student index: ";
             int index;
             cin >> index;
             if(isValidStudentIndex(course.getCourseId() , index)){
@@ -502,7 +509,7 @@ void changeUsernameScreen(User * user){
         if(isValidUser(username)){
             cout << "\t\t\t" << "Sorry, this user name is used.\n";
             cout << "\t\t\t" << "1- Try again.\n";
-            cout << "\t\t\t" << "2- Go back";
+            cout << "\t\t\t" << "2- Go back\n";
             do{
                 cout << "\t\t\t" << "Make your choice : ";
                 char option;
@@ -524,11 +531,11 @@ void changeUsernameScreen(User * user){
 
 void changeEmailScreen(User * user){
     cout << "\t\t\t=====================================================================\n\n";
-    cout << "Enter your old Email: ";
+    cout << "\t\t\tEnter your old Email: ";
     string email;
     cin >> email;
     if(user->get_email() == email){
-        cout << "Enter your new Email: ";
+        cout << "\t\t\tEnter your new Email: ";
         string newEmail;
         cin >> newEmail;
         if(isEmailExist(newEmail)){
@@ -565,7 +572,7 @@ void changePasswordScreen(User * user){
         cout << "\t\t\t" << "Enter your new password: ";
         string newPassword;
         cin >> newPassword;
-        cout << "Confirm your new password: ";
+        cout << "\t\t\tConfirm your new password: ";
         string _newPassword;
         cin >> _newPassword;
         if(newPassword != _newPassword){
@@ -599,6 +606,7 @@ void settingsScreen(User * user){
     cout << "\t\t\t" << "3- Change your password.\n";
     cout << "\t\t\t" << "4- Go back.\n";
     do{
+        cout << "\t\t\t" << "Make your choice: ";
         char option;
         cin >> option;
         if(option == '1'){
@@ -960,6 +968,8 @@ void welcomeScreen(){
         }else if(option == '3'){
             Exit();
             return;
+        }else{
+            cout << "\t\t\t" << "Enter 1 ,2 or 3!\n";
         }
     }while(true);
 
